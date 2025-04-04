@@ -1,7 +1,17 @@
-Reconstruction Attacking Tool for Image Classification tasks.
+# `imginv.py`: Gradient-based Feature Inference Attack (Reconstruction Attack) for image classification tasks.
+
+## How to run it?
+```bash
+python3 -m venv .venv
+source .venv/bin/activate
+pip install -r requirements.txt
+python ./imginv.py --help
+```
+
+## Copyright Notice
 
 This work is heavily inspired by the paper: Inverting Gradients - How easy is it to break privacy in federated learning?
-Copyright (c) 2021 Jonas Geiping, Hartmut Bauermeister, Hannah Dröge
+`Copyright (c) 2021 Jonas Geiping, Hartmut Bauermeister, Hannah Dröge`
 
 ```txt
 @article{geiping2020inverting,
