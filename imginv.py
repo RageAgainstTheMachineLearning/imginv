@@ -14,26 +14,26 @@ from utils import system_startup
 
 def extract_ground_truth(dataloader, args, setup):
     if args.batch_size == 1:
-        target_id = np.random.randint(len(dataloader.dataset))
+        target_id = np.random.randint(len(dataloader.dataset) - 1)
         gt_data, gt_label = dataloader.dataset[target_id]
         gt_data, gt_label = (
             gt_data.unsqueeze(0).to(**setup),
             torch.as_tensor((gt_label,), device=setup["device"]),
         )
-        data_shape = (3, gt_data.shape[2], gt_data.shape[3])
+        data_shape = (gt_data.shape[1], gt_data.shape[2], gt_data.shape[3])
     else:
         gt_data, gt_label = [], []
-        target_id = np.random.randint(len(dataloader.dataset))
+        target_id = np.random.randint(len(dataloader.dataset) - 1)
         while len(gt_label) < args.batch_size:
             data, label = dataloader.dataset[target_id]
             target_id += 1
-            if label not in gt_label:
-                gt_label.append(torch.as_tensor(
-                    (label,), device=setup["device"]))
-                gt_data.append(data.to(**setup))
+            gt_label.append(torch.as_tensor(
+                (label,), device=setup["device"]))
+            gt_data.append(data.to(**setup))
         gt_data = torch.stack(gt_data)
         gt_label = torch.cat(gt_label)
-        data_shape = (3, gt_data.shape[2], gt_data.shape[3])
+        data_shape = (gt_data.shape[1], gt_data.shape[2], gt_data.shape[3])
+
     return gt_data, gt_label, data_shape
 
 
@@ -55,10 +55,14 @@ if __name__ == "__main__":
     ds = torch.as_tensor(
         getattr(consts, f"{args.dataset.lower()}_std"), **setup)[:, None, None]
 
-    num_classes = num_classes(args.dataset)
+    gt_data, gt_label, shape  = extract_ground_truth(validloader, args, setup)
 
+    num_classes = num_classes(args.dataset)
+    num_channels = shape[0] # (channels, height, width)
+
+    print(f"Data shape: {shape}")
     model, model_seed = construct_model(
-        args.model, num_classes, num_channels=3)
+        args.model, num_classes, num_channels=num_channels)
     model.to(**setup)
     model.eval()
 
@@ -68,9 +72,6 @@ if __name__ == "__main__":
     # name, fmt = loss_fn.metric()
     # print(f'Val loss is {training_stats["valid_losses"][-1]:6.4f},\
     #       Val {name}: {training_stats["valid_" + name][-1]:{fmt}}.')
-
-    # Extracting original data and labels.
-    gt_data, gt_label, shape = extract_ground_truth(validloader, args, setup)
 
     print(f"Ground truth data shape: {gt_data.shape}")
     print(f"Ground truth label shape: {gt_label.shape}")

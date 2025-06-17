@@ -25,6 +25,7 @@ def display_batch_iterative(data, fig=None, axes=None, denormalize=False, mean=N
             "Input data must be a 4D tensor (batch_size, 3, H, W)")
 
     batch_size = data.shape[0]
+    channels = data.shape[1]
     max_per_row = 10
     ncols = min(max_per_row, batch_size)
     nrows = math.ceil(batch_size / max_per_row)
@@ -54,8 +55,8 @@ def display_batch_iterative(data, fig=None, axes=None, denormalize=False, mean=N
             if mean is None or std is None:
                 raise ValueError(
                     "Mean and std must be provided for denormalization.")
-            img = data[idx].cpu() * torch.tensor(std).view(3, 1, 1) + \
-                torch.tensor(mean).view(3, 1, 1)
+            img = data[idx].cpu() * torch.tensor(std).view(channels, 1, 1) + \
+                torch.tensor(mean).view(channels, 1, 1)
             # Ensure values are in the [0, 1] range
             img = torch.clamp(img, 0, 1)
         else:
@@ -93,6 +94,7 @@ def display_batch(data, denormalize=False, mean=None, std=None):
             "Input data must be a 4D tensor (batch_size, 3, H, W)")
 
     batch_size = data.shape[0]
+    channels = data.shape[1]
     max_per_row = 10
     ncols = min(max_per_row, batch_size)
     nrows = math.ceil(batch_size / max_per_row)
@@ -106,8 +108,8 @@ def display_batch(data, denormalize=False, mean=None, std=None):
             if mean is None or std is None:
                 raise ValueError(
                     "Mean and std must be provided for denormalization.")
-            img = data[idx].cpu() * torch.tensor(std).view(3, 1, 1) + \
-                torch.tensor(mean).view(3, 1, 1)
+            img = data[idx].cpu() * torch.tensor(std).view(channels, 1, 1) + \
+                torch.tensor(mean).view(channels, 1, 1)
             # Ensure values are in the [0,1] range
             img = torch.clamp(img, 0, 1)
         else:
